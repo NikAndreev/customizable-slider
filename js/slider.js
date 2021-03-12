@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function(){
 	});
 
 	function checkSwipe() {
-		if (Math.abs(mouseDownX - mouseUpX) > 100) {
+		if (Math.abs(mouseDownX - mouseUpX) > 50) {
 			return true;
 		} else {
 			return false;
