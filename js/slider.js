@@ -18,7 +18,13 @@ document.addEventListener("DOMContentLoaded", function(){
 	const nextArrow = slider.querySelector(".slider__arrow_next");
 	const previousArrow = slider.querySelector(".slider__arrow_previous");
 
-	let slideIndex = 0;
+	let sliderData = {
+		slide_index: 0,
+		swipe_data : {
+			mouse_down_x: 0,
+			mouse_up_x: 0
+		}
+	}
 
 	highlightDots();
 
@@ -28,8 +34,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
 	dotsArray.forEach( (dot, dotsIndex) => {
 		dot.addEventListener("click", () => {
-			slideIndex = dotsIndex;
-			toScroll();
+			sliderData.slide_index = dotsIndex;
+			scroll();
 			highlightDots();
 		});
 	});
@@ -39,36 +45,33 @@ document.addEventListener("DOMContentLoaded", function(){
 		event.deltaY < 0 ? toNextSlide() : toPreviousSlide();
 	});
 
-	let mouseDownX = 0;
-	let mouseUpX = 0;
-
 	slider.addEventListener("mousedown", (event) => {
-		mouseDownX = event.clientX;
+		sliderData.swipe_data.mouse_down_x = event.clientX;
 	});
 
 	slider.addEventListener("mouseup", (event) => {
-		mouseUpX = event.clientX;
+		sliderData.swipe_data.mouse_up_x = event.clientX;
 
 		if (checkSwipe()) {
-			mouseDownX > mouseUpX ? toNextSlide() : toPreviousSlide();
+			sliderData.swipe_data.mouse_down_x > sliderData.swipe_data.mouse_up_x ? toNextSlide() : toPreviousSlide();
 		}
 	});
 
 
 	slider.addEventListener("touchstart", event => {
-		mouseDownX = event.touches[0].clientX;
+		sliderData.swipe_data.mouse_down_x = event.touches[0].clientX;
 	});
 
 	slider.addEventListener("touchend", event => {
-		mouseUpX = event.changedTouches[0].clientX;
+		sliderData.swipe_data.mouse_up_x = event.changedTouches[0].clientX;
 
 		if (checkSwipe()) {
-			mouseDownX > mouseUpX ? toNextSlide() : toPreviousSlide();
+			sliderData.swipe_data.mouse_down_x > sliderData.swipe_data.mouse_up_x ? toNextSlide() : toPreviousSlide();
 		}
 	});
 
 	function checkSwipe() {
-		if (Math.abs(mouseDownX - mouseUpX) > 50) {
+		if (Math.abs(sliderData.swipe_data.mouse_down_x - sliderData.swipe_data.mouse_up_x) > 50) {
 			return true;
 		} else {
 			return false;
@@ -77,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 	function highlightDots() {
 		dotsArray.forEach( (dot, dotsIndex) => {
-			if (slideIndex === dotsIndex) {
+			if (sliderData.slide_index === dotsIndex) {
 				dot.classList.add("active");
 			} else {
 				dot.classList.remove("active");
@@ -85,22 +88,22 @@ document.addEventListener("DOMContentLoaded", function(){
 		})
 	}
 
-	function toScroll() {
-		sliderTrack.style = `transform: translate(-${(100 * slideIndex)}%, 0)`;
+	function scroll() {
+		sliderTrack.style = `transform: translate(-${(100 * sliderData.slide_index)}%, 0)`;
 	}
 
 	function toNextSlide() {
-		if (slideIndex < slides.length - 1) {
-			slideIndex++;
-			toScroll();
+		if (sliderData.slide_index < slides.length - 1) {
+			sliderData.slide_index++;
+			scroll();
 			highlightDots();
 		}
 	}
 
 	function toPreviousSlide() {
-		if (slideIndex > 0) {
-			slideIndex--;
-			toScroll();
+		if (sliderData.slide_index > 0) {
+			sliderData.slide_index--;
+			scroll();
 			highlightDots();
 		}
 	} 
