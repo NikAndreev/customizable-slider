@@ -79,8 +79,10 @@ document.addEventListener("DOMContentLoaded", function(){
 	}
 
 	function highlightDots() {
+		let currentSlideIndex = sliderData.slide_index;
+
 		dotsArray.forEach( (dot, dotsIndex) => {
-			if (sliderData.slide_index === dotsIndex) {
+			if (currentSlideIndex === dotsIndex) {
 				dot.classList.add("active");
 			} else {
 				dot.classList.remove("active");
