@@ -2,21 +2,21 @@ document.addEventListener('DOMContentLoaded', function(){
 
 	const slider = document.querySelector('.slider');
 	const sliderTrack = slider.querySelector('.slider__track');
-	const slides = slider.querySelectorAll('.slider__item');
+	const slideGroup = slider.querySelectorAll('.slider__item');
 
 	const sliderDotsArea = slider.querySelector('.slider__dot-group');
-	const dotsArray = [];
+	const sliderDotArray = [];
 
-	slides.forEach( () => {
-		let sliderDot = document.createElement('li');
+	slideGroup.forEach( () => {
+		const sliderDot = document.createElement('li');
 		sliderDot.className='slider__dot';
-		dotsArray.push(sliderDot);
+		sliderDotArray.push(sliderDot);
 	});
 
-	sliderDotsArea.append(...dotsArray);
+	sliderDotsArea.append(...sliderDotArray);
 
-	const nextArrow = slider.querySelector('.slider__arrow_next');
-	const previousArrow = slider.querySelector('.slider__arrow_previous');
+	const arrowNext = slider.querySelector('.slider__arrow_next');
+	const arrowPrevious = slider.querySelector('.slider__arrow_previous');
 
 	const sliderData = {
 		slide_index: 0,
@@ -28,21 +28,21 @@ document.addEventListener('DOMContentLoaded', function(){
 
 	highlightDots();
 
-	nextArrow.addEventListener('click', toNextSlide);
+	arrowNext.addEventListener('click', toNextSlide);
 
-	previousArrow.addEventListener('click', toPreviousSlide);
+	arrowPrevious.addEventListener('click', toPreviousSlide);
 
-	dotsArray.forEach( (dot, dotsIndex) => {
+	sliderDotArray.forEach( (dot, dotIndex) => {
 		dot.addEventListener('click', () => {
-			sliderData.slide_index = dotsIndex;
+			sliderData.slide_index = dotIndex;
 			scroll();
 			highlightDots();
 		});
 	});
 
-	slider.addEventListener('wheel', (event) => {
+	slider.addEventListener('wheel', event => {
 		event.preventDefault();
-		event.deltaY < 0 ? toNextSlide() : toPreviousSlide();
+		event.deltaY > 0 ? toNextSlide() : toPreviousSlide();
 	});
 
 	slider.addEventListener('mousedown', (event) => {
@@ -79,10 +79,10 @@ document.addEventListener('DOMContentLoaded', function(){
 	}
 
 	function highlightDots() {
-		let currentSlideIndex = sliderData.slide_index;
+		const slideIndex = sliderData.slide_index;
 
-		dotsArray.forEach( (dot, dotsIndex) => {
-			if (currentSlideIndex === dotsIndex) {
+		sliderDotArray.forEach( (dot, dotIndex) => {
+			if (slideIndex === dotIndex) {
 				dot.classList.add('active');
 			} else {
 				dot.classList.remove('active');
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	}
 
 	function toNextSlide() {
-		if (sliderData.slide_index < slides.length - 1) {
+		if (sliderData.slide_index < slideGroup.length - 1) {
 			sliderData.slide_index++;
 			scroll();
 			highlightDots();
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 	function autoplay(interval) {
 		let directionIndex = 1;
-		let steps = slides.length - 1;
+		let steps = slideGroup.length - 1;
 		let stepsCounter = 0;
 
 		setInterval(() => {
