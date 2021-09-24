@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	const nextArrow = slider.querySelector('.slider__arrow_next');
 	const previousArrow = slider.querySelector('.slider__arrow_previous');
 
-	let sliderData = {
+	const sliderData = {
 		slide_index: 0,
 		swipe_data : {
 			mouse_down_x: 0,
