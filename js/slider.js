@@ -1,22 +1,22 @@
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener('DOMContentLoaded', function(){
 
-	const slider = document.querySelector(".slider");
-	const sliderTrack = slider.querySelector(".slider__track");
-	const slides = slider.querySelectorAll(".slider__item");
+	const slider = document.querySelector('.slider');
+	const sliderTrack = slider.querySelector('.slider__track');
+	const slides = slider.querySelectorAll('.slider__item');
 
-	const sliderDotsArea = slider.querySelector(".slider__dot-group");
+	const sliderDotsArea = slider.querySelector('.slider__dot-group');
 	const dotsArray = [];
 
 	slides.forEach( () => {
-		let sliderDot = document.createElement("li");
-		sliderDot.className="slider__dot";
+		let sliderDot = document.createElement('li');
+		sliderDot.className='slider__dot';
 		dotsArray.push(sliderDot);
 	});
 
 	sliderDotsArea.append(...dotsArray);
 
-	const nextArrow = slider.querySelector(".slider__arrow_next");
-	const previousArrow = slider.querySelector(".slider__arrow_previous");
+	const nextArrow = slider.querySelector('.slider__arrow_next');
+	const previousArrow = slider.querySelector('.slider__arrow_previous');
 
 	let sliderData = {
 		slide_index: 0,
@@ -28,28 +28,28 @@ document.addEventListener("DOMContentLoaded", function(){
 
 	highlightDots();
 
-	nextArrow.addEventListener("click", toNextSlide);
+	nextArrow.addEventListener('click', toNextSlide);
 
-	previousArrow.addEventListener("click", toPreviousSlide);
+	previousArrow.addEventListener('click', toPreviousSlide);
 
 	dotsArray.forEach( (dot, dotsIndex) => {
-		dot.addEventListener("click", () => {
+		dot.addEventListener('click', () => {
 			sliderData.slide_index = dotsIndex;
 			scroll();
 			highlightDots();
 		});
 	});
 
-	slider.addEventListener("wheel", (event) => {
+	slider.addEventListener('wheel', (event) => {
 		event.preventDefault();
 		event.deltaY < 0 ? toNextSlide() : toPreviousSlide();
 	});
 
-	slider.addEventListener("mousedown", (event) => {
+	slider.addEventListener('mousedown', (event) => {
 		sliderData.swipe_data.mouse_down_x = event.clientX;
 	});
 
-	slider.addEventListener("mouseup", (event) => {
+	slider.addEventListener('mouseup', (event) => {
 		sliderData.swipe_data.mouse_up_x = event.clientX;
 
 		if (checkSwipe()) {
@@ -58,11 +58,11 @@ document.addEventListener("DOMContentLoaded", function(){
 	});
 
 
-	slider.addEventListener("touchstart", event => {
+	slider.addEventListener('touchstart', event => {
 		sliderData.swipe_data.mouse_down_x = event.touches[0].clientX;
 	});
 
-	slider.addEventListener("touchend", event => {
+	slider.addEventListener('touchend', event => {
 		sliderData.swipe_data.mouse_up_x = event.changedTouches[0].clientX;
 
 		if (checkSwipe()) {
@@ -83,9 +83,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
 		dotsArray.forEach( (dot, dotsIndex) => {
 			if (currentSlideIndex === dotsIndex) {
-				dot.classList.add("active");
+				dot.classList.add('active');
 			} else {
-				dot.classList.remove("active");
+				dot.classList.remove('active');
 			}
 		})
 	}
