@@ -52,9 +52,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	slider.addEventListener('mouseup', (event) => {
 		sliderData.swipe_data.mouse_up_x = event.clientX;
 
-		if (checkSwipe()) {
-			sliderData.swipe_data.mouse_down_x > sliderData.swipe_data.mouse_up_x ? toNextSlide() : toPreviousSlide();
-		}
+		handleSwipe();
 	});
 
 
@@ -65,24 +63,22 @@ document.addEventListener('DOMContentLoaded', function(){
 	slider.addEventListener('touchend', event => {
 		sliderData.swipe_data.mouse_up_x = event.changedTouches[0].clientX;
 
-		if (checkSwipe()) {
-			sliderData.swipe_data.mouse_down_x > sliderData.swipe_data.mouse_up_x ? toNextSlide() : toPreviousSlide();
-		}
+		handleSwipe();
 	});
 
 	function checkSwipe() {
-		if (Math.abs(sliderData.swipe_data.mouse_down_x - sliderData.swipe_data.mouse_up_x) > 50) {
-			return true;
-		} else {
-			return false;
+		return Math.abs(sliderData.swipe_data.mouse_down_x - sliderData.swipe_data.mouse_up_x) > 50
+	}
+
+	function handleSwipe() {
+		if (checkSwipe()) {
+			sliderData.swipe_data.mouse_down_x > sliderData.swipe_data.mouse_up_x ? toNextSlide() : toPreviousSlide();
 		}
 	}
 
 	function highlightDots() {
-		const slideIndex = sliderData.slide_index;
-
 		sliderDotArray.forEach( (dot, dotIndex) => {
-			if (slideIndex === dotIndex) {
+			if (sliderData.slide_index === dotIndex) {
 				dot.classList.add('active');
 			} else {
 				dot.classList.remove('active');
@@ -109,23 +105,5 @@ document.addEventListener('DOMContentLoaded', function(){
 			highlightDots();
 		}
 	} 
-
-	function autoplay(interval) {
-		let directionIndex = 1;
-		let steps = slideGroup.length - 1;
-		let stepsCounter = 0;
-
-		setInterval(() => {
-			stepsCounter++;
-			if (directionIndex) {
-				toNextSlide();
-				directionIndex = (stepsCounter % steps === 0) ? 0 : 1;
-			} else {
-				toPreviousSlide();
-				directionIndex = (stepsCounter % steps === 0) ? 1 : 0;
-			}
-		} ,interval)
-	}
-
 	
 });
