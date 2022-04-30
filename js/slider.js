@@ -1,109 +1,167 @@
 document.addEventListener('DOMContentLoaded', function(){
-
-	const slider = document.querySelector('.slider');
-	const sliderTrack = slider.querySelector('.slider__track');
-	const slideGroup = slider.querySelectorAll('.slider__item');
-
-	const sliderDotsArea = slider.querySelector('.slider__dot-group');
-	const sliderDotArray = [];
-
-	slideGroup.forEach( () => {
-		const sliderDot = document.createElement('li');
-		sliderDot.className='slider__dot';
-		sliderDotArray.push(sliderDot);
-	});
-
-	sliderDotsArea.append(...sliderDotArray);
-
-	const arrowNext = slider.querySelector('.slider__arrow_next');
-	const arrowPrevious = slider.querySelector('.slider__arrow_previous');
-
-	const sliderData = {
-		slide_index: 0,
-		swipe_data : {
-			mouse_down_x: 0,
-			mouse_up_x: 0
-		}
-	}
-
-	highlightDots();
-
-	arrowNext.addEventListener('click', toNextSlide);
-
-	arrowPrevious.addEventListener('click', toPreviousSlide);
-
-	sliderDotArray.forEach( (dot, dotIndex) => {
-		dot.addEventListener('click', () => {
-			sliderData.slide_index = dotIndex;
-			scroll();
-			highlightDots();
-		});
-	});
-
-	slider.addEventListener('wheel', event => {
-		event.preventDefault();
-		event.deltaY > 0 ? toNextSlide() : toPreviousSlide();
-	});
-
-	slider.addEventListener('mousedown', (event) => {
-		sliderData.swipe_data.mouse_down_x = event.clientX;
-	});
-
-	slider.addEventListener('mouseup', (event) => {
-		sliderData.swipe_data.mouse_up_x = event.clientX;
-
-		handleSwipe();
-	});
-
-
-	slider.addEventListener('touchstart', event => {
-		sliderData.swipe_data.mouse_down_x = event.touches[0].clientX;
-	});
-
-	slider.addEventListener('touchend', event => {
-		sliderData.swipe_data.mouse_up_x = event.changedTouches[0].clientX;
-
-		handleSwipe();
-	});
-
-	function checkSwipe() {
-		return Math.abs(sliderData.swipe_data.mouse_down_x - sliderData.swipe_data.mouse_up_x) > 50
-	}
-
-	function handleSwipe() {
-		if (checkSwipe()) {
-			sliderData.swipe_data.mouse_down_x > sliderData.swipe_data.mouse_up_x ? toNextSlide() : toPreviousSlide();
-		}
-	}
-
-	function highlightDots() {
-		sliderDotArray.forEach( (dot, dotIndex) => {
-			if (sliderData.slide_index === dotIndex) {
-				dot.classList.add('active');
-			} else {
-				dot.classList.remove('active');
-			}
-		})
-	}
-
-	function scroll() {
-		sliderTrack.style = `transform: translate(-${(100 * sliderData.slide_index)}%, 0)`;
-	}
-
-	function toNextSlide() {
-		if (sliderData.slide_index < slideGroup.length - 1) {
-			sliderData.slide_index++;
-			scroll();
-			highlightDots();
-		}
-	}
-
-	function toPreviousSlide() {
-		if (sliderData.slide_index > 0) {
-			sliderData.slide_index--;
-			scroll();
-			highlightDots();
-		}
-	} 
 	
-});
+	class Slider {
+		#slideIndex = 0
+		#sliderEl
+		#trackEl
+		#slidesCount
+		#paginationActive
+		#paginationClickable
+		#paginationEl
+		#bulletsEl = []
+		#bulletActiveClass
+		#navigationActive
+		#nextEl
+		#prevEl
+		#mousewheel
+		#swipe
+		#downX
+		#upX
+		#keyboard
+
+		constructor(config) {
+			this.#sliderEl = document.querySelector(config.slider)
+			this.#trackEl = this.#sliderEl.querySelector(config.track)
+			this.#slidesCount = this.#sliderEl.querySelectorAll(config.slide).length
+
+			this.#paginationActive = config.pagination.active
+			if (this.#paginationActive) {
+				this.#paginationEl = this.#sliderEl.querySelector(config.pagination.el)
+
+				for (let i = 0; i < this.#slidesCount; i++) {
+					const bullet = document.createElement(config.pagination.bulletTag)
+					bullet.classList.add(config.pagination.bulletClass)
+					bullet.dataset.index = i
+					this.#bulletsEl.push(bullet)
+				}
+
+				this.#paginationEl.append(...this.#bulletsEl)
+
+				this.#bulletActiveClass = config.pagination.bulletActiveClass
+
+				this.#highlightBullets()
+
+				this.#paginationClickable = config.pagination.clickable
+				if (this.#paginationClickable) {
+					this.#paginationEl.addEventListener('click', event => {
+						if (event.target.closest('[data-index]')) {
+							this.#slideIndex = Number(event.target.closest('[data-index]').dataset.index)
+							this.#scroll()
+							this.#highlightBullets()
+						}
+					})
+				}
+			}
+
+			this.#navigationActive = config.navigation.active
+			if (this.#navigationActive) {
+				this.#nextEl = this.#sliderEl.querySelector(config.navigation.nextEl)
+				this.#prevEl = this.#sliderEl.querySelector(config.navigation.prevEl)
+
+				this.#nextEl.addEventListener('click', ()=> this.next())
+				this.#prevEl.addEventListener('click', ()=> this.previous())
+			}
+
+			this.#mousewheel = config.mousewheel
+			if (this.#mousewheel) {
+				this.#sliderEl.addEventListener('wheel', event => {
+					event.preventDefault()
+					event.deltaY > 0 ? this.next() : this.previous()
+				})
+			}
+
+			this.#swipe = config.swipe
+			if (this.#swipe) {
+				this.#sliderEl.addEventListener('mousedown', event => {
+					this.#downX = event.clientX
+				})
+
+				this.#sliderEl.addEventListener('mouseup', event => {
+					this.#upX = event.clientX
+
+					this.#doSwipe()
+				})
+
+				this.#sliderEl.addEventListener('touchstart', event => {
+					this.#downX = event.touches[0].clientX
+				})
+				
+				this.#sliderEl.addEventListener('touchend', event => {
+					this.#upX = event.changedTouches[0].clientX
+			
+					this.#doSwipe()
+				})
+			}
+
+			this.#keyboard = config.keyboard
+			if (this.#keyboard) {
+				document.addEventListener('keydown', event => {
+					if (event.code === 'ArrowLeft') {
+						this.previous()
+						return
+					}
+
+					if (event.code === 'ArrowRight') {
+						this.next()
+					}
+				})
+			}
+		}
+
+		#scroll() {
+			this.#trackEl.style = `transform: translate(-${(100 * this.#slideIndex)}%, 0)`
+		}
+
+		#highlightBullets() {
+			if (this.#paginationActive) {
+				this.#bulletsEl.forEach( bullet => {
+					this.#slideIndex === Number(bullet.dataset.index) ? bullet.classList.add(this.#bulletActiveClass) : bullet.classList.remove(this.#bulletActiveClass)
+				})
+			}
+		}
+
+		#doSwipe() {
+			if (Math.abs(this.#downX - this.#upX) > 50) {
+				this.#downX > this.#upX ? this.next() : this.previous()
+			}
+		}
+
+		next() {
+			if (this.#slideIndex < this.#slidesCount - 1) {
+				this.#slideIndex++
+				this.#scroll()
+				this.#highlightBullets()
+			}
+		}
+		
+		previous() {
+			if (this.#slideIndex > 0) {
+				this.#slideIndex--
+				this.#scroll()
+				this.#highlightBullets()
+			}
+		} 
+	}
+
+	new Slider({
+		slider: '[data-slider]',
+		track: '[data-track]',
+		slide: '[data-slide]',
+		pagination: {
+			active: true,
+			el: '[data-pagination]',
+			clickable: true,
+			bulletTag: 'li',
+			bulletClass: 'slider__dot',
+			bulletActiveClass: 'active'
+		},
+		navigation: {
+			active: true,
+			nextEl: '[data-next]',
+			prevEl: '[data-previous]'
+		},
+		mousewheel: true,
+		swipe: true,
+		keyboard: true
+	})
+})
