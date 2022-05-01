@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function(){
 		#upX
 		#keyboard
 
-		constructor(config) {
-			this.#sliderEl = config.slider
+		constructor(slider, config) {
+			this.#sliderEl = slider
 			this.#trackEl = this.#sliderEl.querySelector(config.track)
 			this.#slidesCount = this.#sliderEl.querySelectorAll(config.slide).length
 
@@ -143,8 +143,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		} 
 	}
 
-	new Slider({
-		slider: document.querySelector('[data-slider]'),
+	new Slider(document.querySelector('[data-slider]'), {
 		track: '[data-track]',
 		slide: '[data-slide]',
 		pagination: {
