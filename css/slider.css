@@ -35,6 +35,9 @@ body {
 	transition: opacity 0.2s;
 	cursor: pointer;
 	z-index: 5;
+	border: none;
+	outline: none;
+	padding: 0;
 }
 
 .slider__arrow_previous {

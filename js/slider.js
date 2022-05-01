@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function(){
 							this.#slideIndex = Number(event.target.closest('[data-index]').dataset.index)
 							this.#scroll()
 							this.#highlightBullets()
+							this.#lockNavigation()
 						}
 					})
 				}
@@ -57,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function(){
 			if (this.#navigationActive) {
 				this.#nextEl = this.#sliderEl.querySelector(config.navigation.nextEl)
 				this.#prevEl = this.#sliderEl.querySelector(config.navigation.prevEl)
+
+				this.#lockNavigation()
 
 				this.#nextEl.addEventListener('click', ()=> this.next())
 				this.#prevEl.addEventListener('click', ()=> this.previous())
@@ -112,6 +115,13 @@ document.addEventListener('DOMContentLoaded', function(){
 			this.#trackEl.style = `transform: translate(-${(100 * this.#slideIndex)}%, 0)`
 		}
 
+		#lockNavigation() {
+			if (this.#navigationActive) {
+				this.#slideIndex >= this.#slidesCount - 1 ? this.#nextEl.setAttribute('disabled', 'disabled') : this.#nextEl.removeAttribute('disabled')
+				this.#slideIndex === 0 ? this.#prevEl.setAttribute('disabled', 'disabled') : this.#prevEl.removeAttribute('disabled')
+			}
+		}
+
 		#highlightBullets() {
 			if (this.#paginationActive) {
 				this.#bulletsEl.forEach( bullet => {
@@ -131,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function(){
 				this.#slideIndex++
 				this.#scroll()
 				this.#highlightBullets()
+				this.#lockNavigation()
 			}
 		}
 		
@@ -139,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function(){
 				this.#slideIndex--
 				this.#scroll()
 				this.#highlightBullets()
+				this.#lockNavigation()
 			}
 		} 
 	}
