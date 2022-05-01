@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		#keyboard
 
 		constructor(config) {
-			this.#sliderEl = document.querySelector(config.slider)
+			this.#sliderEl = config.slider
 			this.#trackEl = this.#sliderEl.querySelector(config.track)
 			this.#slidesCount = this.#sliderEl.querySelectorAll(config.slide).length
 
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	}
 
 	new Slider({
-		slider: '[data-slider]',
+		slider: document.querySelector('[data-slider]'),
 		track: '[data-track]',
 		slide: '[data-slide]',
 		pagination: {
