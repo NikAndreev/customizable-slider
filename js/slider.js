@@ -1,103 +1,87 @@
 document.addEventListener('DOMContentLoaded', function(){
 	
 	class Slider {
-		#slideIndex = 0
-		#sliderEl
-		#trackEl
-		#slidesCount
-		#paginationActive
-		#paginationClickable
-		#paginationEl
-		#bulletsEl = []
-		#bulletActiveClass
-		#navigationActive
-		#nextEl
-		#prevEl
-		#mousewheel
-		#swipe
-		#downX
-		#upX
-		#keyboard
+		_slideIndex = 0
 
 		constructor(slider, config) {
-			this.#sliderEl = slider
-			this.#trackEl = this.#sliderEl.querySelector(config.track)
-			this.#slidesCount = this.#sliderEl.querySelectorAll(config.slide).length
+			this._sliderEl = slider
+			this._trackEl = this._sliderEl.querySelector(config.track)
+			this._slidesCount = this._sliderEl.querySelectorAll(config.slide).length
 
-			this.#paginationActive = config.pagination.active
-			if (this.#paginationActive) {
-				this.#paginationEl = this.#sliderEl.querySelector(config.pagination.el)
+			this._paginationActive = config.pagination.active
+			if (this._paginationActive) {
+				this._paginationEl = this._sliderEl.querySelector(config.pagination.el)
 
-				for (let i = 0; i < this.#slidesCount; i++) {
+				this._bulletsEl = []
+				for (let i = 0; i < this._slidesCount; i++) {
 					const bullet = document.createElement(config.pagination.bulletTag)
 					bullet.classList.add(config.pagination.bulletClass)
 					bullet.dataset.index = i
-					this.#bulletsEl.push(bullet)
+					this._bulletsEl.push(bullet)
 				}
 
-				this.#paginationEl.append(...this.#bulletsEl)
+				this._paginationEl.append(...this._bulletsEl)
 
-				this.#bulletActiveClass = config.pagination.bulletActiveClass
+				this._bulletActiveClass = config.pagination.bulletActiveClass
 
-				this.#highlightBullets()
+				this._highlightBullets()
 
-				this.#paginationClickable = config.pagination.clickable
-				if (this.#paginationClickable) {
-					this.#paginationEl.addEventListener('click', event => {
+				this._paginationClickable = config.pagination.clickable
+				if (this._paginationClickable) {
+					this._paginationEl.addEventListener('click', event => {
 						if (event.target.closest('[data-index]')) {
-							this.#slideIndex = Number(event.target.closest('[data-index]').dataset.index)
-							this.#scroll()
-							this.#highlightBullets()
-							this.#lockNavigation()
+							this._slideIndex = Number(event.target.closest('[data-index]').dataset.index)
+							this._scroll()
+							this._highlightBullets()
+							this._lockNavigation()
 						}
 					})
 				}
 			}
 
-			this.#navigationActive = config.navigation.active
-			if (this.#navigationActive) {
-				this.#nextEl = this.#sliderEl.querySelector(config.navigation.nextEl)
-				this.#prevEl = this.#sliderEl.querySelector(config.navigation.prevEl)
+			this.next = this.next.bind(this)
+			this.previous = this.previous.bind(this)
 
-				this.#lockNavigation()
+			this._navigationActive = config.navigation.active
+			if (this._navigationActive) {
+				this._nextEl = this._sliderEl.querySelector(config.navigation.nextEl)
+				this._prevEl = this._sliderEl.querySelector(config.navigation.prevEl)
 
-				this.#nextEl.addEventListener('click', ()=> this.next())
-				this.#prevEl.addEventListener('click', ()=> this.previous())
+				this._lockNavigation()
+
+				this._nextEl.addEventListener('click', this.next)
+				this._prevEl.addEventListener('click', this.previous)
 			}
 
-			this.#mousewheel = config.mousewheel
-			if (this.#mousewheel) {
-				this.#sliderEl.addEventListener('wheel', event => {
+			this._mousewheel = config.mousewheel
+			if (this._mousewheel) {
+				this._sliderEl.addEventListener('wheel', event => {
 					event.preventDefault()
 					event.deltaY > 0 ? this.next() : this.previous()
 				})
 			}
 
-			this.#swipe = config.swipe
-			if (this.#swipe) {
-				this.#sliderEl.addEventListener('mousedown', event => {
-					this.#downX = event.clientX
+			this._swipe = config.swipe
+			if (this._swipe) {
+				this._sliderEl.addEventListener('mousedown', event => this._downX = event.clientX)
+
+				this._sliderEl.addEventListener('mouseup', event => {
+					this._upX = event.clientX
+
+					this._doSwipe()
 				})
 
-				this.#sliderEl.addEventListener('mouseup', event => {
-					this.#upX = event.clientX
-
-					this.#doSwipe()
-				})
-
-				this.#sliderEl.addEventListener('touchstart', event => {
-					this.#downX = event.touches[0].clientX
-				})
+				this._sliderEl.addEventListener('touchstart', event => this._downX = event.touches[0].clientX)
 				
-				this.#sliderEl.addEventListener('touchend', event => {
-					this.#upX = event.changedTouches[0].clientX
+				this._sliderEl.addEventListener('touchend', event => {
+					this._upX = event.changedTouches[0].clientX
 			
-					this.#doSwipe()
+					this._doSwipe()
 				})
 			}
 
-			this.#keyboard = config.keyboard
-			if (this.#keyboard) {
+			this._keyboard = config.keyboard
+			if (this._keyboard) {
 				document.addEventListener('keydown', event => {
 					if (event.code === 'ArrowLeft') {
 						this.previous()
@@ -111,46 +95,46 @@ document.addEventListener('DOMContentLoaded', function(){
 			}
 		}
 
-		#scroll() {
-			this.#trackEl.style = `transform: translate(-${(100 * this.#slideIndex)}%, 0)`
+		_scroll() {
+			this._trackEl.style = `transform: translate(-${(100 * this._slideIndex)}%, 0)`
 		}
 
-		#lockNavigation() {
-			if (this.#navigationActive) {
-				this.#slideIndex >= this.#slidesCount - 1 ? this.#nextEl.setAttribute('disabled', 'disabled') : this.#nextEl.removeAttribute('disabled')
-				this.#slideIndex === 0 ? this.#prevEl.setAttribute('disabled', 'disabled') : this.#prevEl.removeAttribute('disabled')
+		_lockNavigation() {
+			if (this._navigationActive) {
+				this._slideIndex >= this._slidesCount - 1 ? this._nextEl.setAttribute('disabled', 'disabled') : this._nextEl.removeAttribute('disabled')
+				this._slideIndex === 0 ? this._prevEl.setAttribute('disabled', 'disabled') : this._prevEl.removeAttribute('disabled')
 			}
 		}
 
-		#highlightBullets() {
-			if (this.#paginationActive) {
-				this.#bulletsEl.forEach( bullet => {
-					this.#slideIndex === Number(bullet.dataset.index) ? bullet.classList.add(this.#bulletActiveClass) : bullet.classList.remove(this.#bulletActiveClass)
+		_highlightBullets() {
+			if (this._paginationActive) {
+				this._bulletsEl.forEach( bullet => {
+					this._slideIndex === Number(bullet.dataset.index) ? bullet.classList.add(this._bulletActiveClass) : bullet.classList.remove(this._bulletActiveClass)
 				})
 			}
 		}
 
-		#doSwipe() {
-			if (Math.abs(this.#downX - this.#upX) > 50) {
-				this.#downX > this.#upX ? this.next() : this.previous()
+		_doSwipe() {
+			if (Math.abs(this._downX - this._upX) > 50) {
+				this._downX > this._upX ? this.next() : this.previous()
 			}
 		}
 
 		next() {
-			if (this.#slideIndex < this.#slidesCount - 1) {
-				this.#slideIndex++
-				this.#scroll()
-				this.#highlightBullets()
-				this.#lockNavigation()
+			if (this._slideIndex < this._slidesCount - 1) {
+				this._slideIndex++
+				this._scroll()
+				this._highlightBullets()
+				this._lockNavigation()
 			}
 		}
 		
 		previous() {
-			if (this.#slideIndex > 0) {
-				this.#slideIndex--
-				this.#scroll()
-				this.#highlightBullets()
-				this.#lockNavigation()
+			if (this._slideIndex > 0) {
+				this._slideIndex--
+				this._scroll()
+				this._highlightBullets()
+				this._lockNavigation()
 			}
 		} 
 	}
