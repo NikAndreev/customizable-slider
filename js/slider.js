@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', function(){
 	
 	class Slider {
-		_slideIndex = 0
+		slideIndex = 0
 
 		constructor(slider, config) {
 			this._sliderEl = slider
 			this._trackEl = this._sliderEl.querySelector(config.track)
-			this._slidesCount = this._sliderEl.querySelectorAll(config.slide).length
+			this.slidesCount = this._sliderEl.querySelectorAll(config.slide).length
 
 			this._paginationActive = config.pagination.active
 			if (this._paginationActive) {
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			}
 
 			if (config.swipe) {
-			this._initSwipe()
+				this._initSwipe()
 			}
 
 			if (config.keyboard) {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			this._paginationEl = this._sliderEl.querySelector(config.el)
 
 			this._bulletsEl = []
-			for (let i = 0; i < this._slidesCount; i++) {
+			for (let i = 0; i < this.slidesCount; i++) {
 				const bullet = document.createElement(config.bulletTag)
 				bullet.classList.add(config.bulletClass)
 				bullet.dataset.index = i
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		_setPaginationClickHandler() {
 			this._paginationEl.addEventListener('click', event => {
 				if (event.target.closest('[data-index]')) {
-					this._slideIndex = Number(event.target.closest('[data-index]').dataset.index)
+					this.slideIndex = Number(event.target.closest('[data-index]').dataset.index)
 					this._scroll()
 					this._highlightBullets()
 					this._lockNavigation()
@@ -71,6 +71,8 @@ document.addEventListener('DOMContentLoaded', function(){
 		_initNavigation(config) {
 			this._nextEl = this._sliderEl.querySelector(config.nextEl)
 			this._prevEl = this._sliderEl.querySelector(config.prevEl)
+
+			this._navigationDisabledClass = config.disabledClass || 'disabled'
 
 			this._lockNavigation()
 
@@ -121,20 +123,20 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 
 		_scroll() {
-			this._trackEl.style = `transform: translate(-${(100 * this._slideIndex)}%, 0)`
+			this._trackEl.style = `transform: translate(-${(100 * this.slideIndex)}%, 0)`
 		}
 
 		_lockNavigation() {
 			if (this._navigationActive) {
-				this._slideIndex >= this._slidesCount - 1 ? this._nextEl.setAttribute('disabled', 'disabled') : this._nextEl.removeAttribute('disabled')
-				this._slideIndex === 0 ? this._prevEl.setAttribute('disabled', 'disabled') : this._prevEl.removeAttribute('disabled')
+				this.slideIndex >= this.slidesCount - 1 ? this._nextEl.classList.add(this._navigationDisabledClass) : this._nextEl.classList.remove(this._navigationDisabledClass)
+				this.slideIndex === 0 ? this._prevEl.classList.add(this._navigationDisabledClass) : this._prevEl.classList.remove(this._navigationDisabledClass)
 			}
 		}
 
 		_highlightBullets() {
 			if (this._paginationActive) {
 				this._bulletsEl.forEach( bullet => {
-					this._slideIndex === Number(bullet.dataset.index) ? bullet.classList.add(this._bulletActiveClass) : bullet.classList.remove(this._bulletActiveClass)
+					this.slideIndex === Number(bullet.dataset.index) ? bullet.classList.add(this._bulletActiveClass) : bullet.classList.remove(this._bulletActiveClass)
 				})
 			}
 		}
@@ -146,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 
 		next() {
-			if (this._slideIndex < this._slidesCount - 1) {
-				this._slideIndex++
+			if (this.slideIndex < this.slidesCount - 1) {
+				this.slideIndex++
 				this._scroll()
 				this._highlightBullets()
 				this._lockNavigation()
@@ -155,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 		
 		previous() {
-			if (this._slideIndex > 0) {
-				this._slideIndex--
+			if (this.slideIndex > 0) {
+				this.slideIndex--
 				this._scroll()
 				this._highlightBullets()
 				this._lockNavigation()
@@ -178,7 +180,8 @@ document.addEventListener('DOMContentLoaded', function(){
 		navigation: {
 			active: true,
 			nextEl: '[data-next]',
-			prevEl: '[data-previous]'
+			prevEl: '[data-previous]',
+			disabledClass: 'disabled'
 		},
 		mousewheel: true,
 		swipe: true,
